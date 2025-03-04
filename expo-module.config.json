@@ -1,0 +1,17 @@
+{
+  "platforms": [
+    "apple",
+    "android",
+    "web"
+  ],
+  "apple": {
+    "modules": [
+      "ExpoBetterHapticsModule"
+    ]
+  },
+  "android": {
+    "modules": [
+      "expo.modules.betterhaptics.ExpoBetterHapticsModule"
+    ]
+  }
+}

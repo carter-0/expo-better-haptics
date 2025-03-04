@@ -1,0 +1,10 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "expo-better-haptics": ["../src/index"],
+      "expo-better-haptics/*": ["../src/*"]
+    }
+  }
+}
