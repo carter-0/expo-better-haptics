@@ -43,97 +43,82 @@ class ExpoBetterHaptics {
     /**
      * Play a light impact haptic effect
      * Uses native UIImpactFeedbackGenerator with .light style on iOS
-     * Falls back to playTransient on Android
-     * @param options Options for the impact effect (used on Android)
+     * No-op on non-iOS platforms
      * @returns Promise that resolves when the haptic effect is played
      */
-    static async impactLight(options: { intensity?: number; sharpness?: number } = {}): Promise<void> {
+    static async impactLight(): Promise<void> {
         await this.ensureInitialized()
 
         if (Platform.OS === 'ios') {
             await ExpoBetterHapticsModule.impactLight()
-        } else {
-            // Fallback for Android
-            await ExpoBetterHapticsModule.playTransient(options.intensity ?? 0.3, options.sharpness ?? 0.5)
         }
+        // No-op on non-iOS platforms
     }
 
     /**
      * Play a medium impact haptic effect
      * Uses native UIImpactFeedbackGenerator with .medium style on iOS
-     * Falls back to playTransient on Android
-     * @param options Options for the impact effect (used on Android)
+     * No-op on non-iOS platforms
      * @returns Promise that resolves when the haptic effect is played
      */
-    static async impactMedium(options: { intensity?: number; sharpness?: number } = {}): Promise<void> {
+    static async impactMedium(): Promise<void> {
         await this.ensureInitialized()
 
         if (Platform.OS === 'ios') {
             await ExpoBetterHapticsModule.impactMedium()
-        } else {
-            // Fallback for Android
-            await ExpoBetterHapticsModule.playTransient(options.intensity ?? 0.6, options.sharpness ?? 0.5)
         }
+        // No-op on non-iOS platforms
     }
 
     /**
      * Play a heavy impact haptic effect
      * Uses native UIImpactFeedbackGenerator with .heavy style on iOS
-     * Falls back to playTransient on Android
-     * @param options Options for the impact effect (used on Android)
+     * No-op on non-iOS platforms
      * @returns Promise that resolves when the haptic effect is played
      */
-    static async impactHeavy(options: { intensity?: number; sharpness?: number } = {}): Promise<void> {
+    static async impactHeavy(): Promise<void> {
         await this.ensureInitialized()
 
         if (Platform.OS === 'ios') {
             await ExpoBetterHapticsModule.impactHeavy()
-        } else {
-            // Fallback for Android
-            await ExpoBetterHapticsModule.playTransient(options.intensity ?? 1.0, options.sharpness ?? 0.5)
         }
+        // No-op on non-iOS platforms
     }
 
     /**
      * Play a soft impact haptic effect
      * Uses native UIImpactFeedbackGenerator with .soft style on iOS
-     * Falls back to playTransient on Android
-     * @param options Options for the impact effect (used on Android)
+     * No-op on non-iOS platforms
      * @returns Promise that resolves when the haptic effect is played
      */
-    static async impactSoft(options: { intensity?: number; sharpness?: number } = {}): Promise<void> {
+    static async impactSoft(): Promise<void> {
         await this.ensureInitialized()
 
         if (Platform.OS === 'ios') {
             await ExpoBetterHapticsModule.impactSoft()
-        } else {
-            // Fallback for Android
-            await ExpoBetterHapticsModule.playTransient(options.intensity ?? 0.3, options.sharpness ?? 0.3)
         }
+        // No-op on non-iOS platforms
     }
 
     /**
      * Play a rigid impact haptic effect
      * Uses native UIImpactFeedbackGenerator with .rigid style on iOS
-     * Falls back to playTransient on Android
-     * @param options Options for the impact effect (used on Android)
+     * No-op on non-iOS platforms
      * @returns Promise that resolves when the haptic effect is played
      */
-    static async impactRigid(options: { intensity?: number; sharpness?: number } = {}): Promise<void> {
+    static async impactRigid(): Promise<void> {
         await this.ensureInitialized()
 
         if (Platform.OS === 'ios') {
             await ExpoBetterHapticsModule.impactRigid()
-        } else {
-            // Fallback for Android
-            await ExpoBetterHapticsModule.playTransient(options.intensity ?? 0.7, options.sharpness ?? 0.7)
         }
+        // No-op on non-iOS platforms
     }
 
     /**
      * Play a success notification haptic effect
      * Uses native UINotificationFeedbackGenerator with .success type on iOS
-     * Falls back to custom pattern on Android
+     * No-op on non-iOS platforms
      * @returns Promise that resolves when the haptic effect is played
      */
     static async notificationSuccess(): Promise<void> {
@@ -141,35 +126,14 @@ class ExpoBetterHaptics {
 
         if (Platform.OS === 'ios') {
             await ExpoBetterHapticsModule.notificationSuccess()
-        } else {
-            // Fallback for Android - custom pattern
-            const events: HapticEvent[] = [
-                {
-                    type: 'transient',
-                    time: 0,
-                    parameters: [
-                        { id: HapticEventParameterType.Intensity, value: 0.5 },
-                        { id: HapticEventParameterType.Sharpness, value: 0.3 },
-                    ],
-                },
-                {
-                    type: 'transient',
-                    time: 0.15,
-                    parameters: [
-                        { id: HapticEventParameterType.Intensity, value: 0.8 },
-                        { id: HapticEventParameterType.Sharpness, value: 0.5 },
-                    ],
-                },
-            ]
-
-            await ExpoBetterHapticsModule.playPattern(events)
         }
+        // No-op on non-iOS platforms
     }
 
     /**
      * Play a warning notification haptic effect
      * Uses native UINotificationFeedbackGenerator with .warning type on iOS
-     * Falls back to custom pattern on Android
+     * No-op on non-iOS platforms
      * @returns Promise that resolves when the haptic effect is played
      */
     static async notificationWarning(): Promise<void> {
@@ -177,43 +141,14 @@ class ExpoBetterHaptics {
 
         if (Platform.OS === 'ios') {
             await ExpoBetterHapticsModule.notificationWarning()
-        } else {
-            // Fallback for Android - custom pattern
-            const events: HapticEvent[] = [
-                {
-                    type: 'transient',
-                    time: 0,
-                    parameters: [
-                        { id: HapticEventParameterType.Intensity, value: 0.6 },
-                        { id: HapticEventParameterType.Sharpness, value: 0.5 },
-                    ],
-                },
-                {
-                    type: 'transient',
-                    time: 0.1,
-                    parameters: [
-                        { id: HapticEventParameterType.Intensity, value: 0.3 },
-                        { id: HapticEventParameterType.Sharpness, value: 0.5 },
-                    ],
-                },
-                {
-                    type: 'transient',
-                    time: 0.2,
-                    parameters: [
-                        { id: HapticEventParameterType.Intensity, value: 0.6 },
-                        { id: HapticEventParameterType.Sharpness, value: 0.5 },
-                    ],
-                },
-            ]
-
-            await ExpoBetterHapticsModule.playPattern(events)
         }
+        // No-op on non-iOS platforms
     }
 
     /**
      * Play an error notification haptic effect
      * Uses native UINotificationFeedbackGenerator with .error type on iOS
-     * Falls back to custom pattern on Android
+     * No-op on non-iOS platforms
      * @returns Promise that resolves when the haptic effect is played
      */
     static async notificationError(): Promise<void> {
@@ -221,43 +156,14 @@ class ExpoBetterHaptics {
 
         if (Platform.OS === 'ios') {
             await ExpoBetterHapticsModule.notificationError()
-        } else {
-            // Fallback for Android - custom pattern
-            const events: HapticEvent[] = [
-                {
-                    type: 'transient',
-                    time: 0,
-                    parameters: [
-                        { id: HapticEventParameterType.Intensity, value: 1.0 },
-                        { id: HapticEventParameterType.Sharpness, value: 0.8 },
-                    ],
-                },
-                {
-                    type: 'transient',
-                    time: 0.1,
-                    parameters: [
-                        { id: HapticEventParameterType.Intensity, value: 0.4 },
-                        { id: HapticEventParameterType.Sharpness, value: 0.4 },
-                    ],
-                },
-                {
-                    type: 'transient',
-                    time: 0.2,
-                    parameters: [
-                        { id: HapticEventParameterType.Intensity, value: 1.0 },
-                        { id: HapticEventParameterType.Sharpness, value: 0.8 },
-                    ],
-                },
-            ]
-
-            await ExpoBetterHapticsModule.playPattern(events)
         }
+        // No-op on non-iOS platforms
     }
 
     /**
      * Play a selection haptic effect
      * Uses native UISelectionFeedbackGenerator on iOS
-     * Falls back to a simple transient on Android
+     * No-op on non-iOS platforms
      * @returns Promise that resolves when the haptic effect is played
      */
     static async selection(): Promise<void> {
@@ -265,21 +171,8 @@ class ExpoBetterHaptics {
 
         if (Platform.OS === 'ios') {
             await ExpoBetterHapticsModule.selection()
-        } else {
-            // Fallback for Android - simple transient
-            const events: HapticEvent[] = [
-                {
-                    type: 'transient',
-                    time: 0,
-                    parameters: [
-                        { id: HapticEventParameterType.Intensity, value: 0.2 },
-                        { id: HapticEventParameterType.Sharpness, value: 0.3 },
-                    ],
-                },
-            ]
-
-            await ExpoBetterHapticsModule.playPattern(events)
         }
+        // No-op on non-iOS platforms
     }
 
     /**
@@ -295,11 +188,15 @@ class ExpoBetterHaptics {
         } = {},
     ): Promise<void> {
         await this.ensureInitialized()
-        await ExpoBetterHapticsModule.playContinuous(
-            options.intensity ?? 0.8,
-            options.sharpness ?? 0.5,
-            options.duration ?? 0.5,
-        )
+
+        if (Platform.OS === 'ios') {
+            await ExpoBetterHapticsModule.playContinuous(
+                options.intensity ?? 0.8,
+                options.sharpness ?? 0.5,
+                options.duration ?? 0.5,
+            )
+        }
+        // No-op on non-iOS platforms
     }
 
     /**
@@ -309,9 +206,13 @@ class ExpoBetterHaptics {
      */
     static async play(events: HapticEvent[]): Promise<void> {
         await this.ensureInitialized()
-        await ExpoBetterHapticsModule.playPattern(events)
+
+        if (Platform.OS === 'ios') {
+            await ExpoBetterHapticsModule.playPattern(events)
+        }
+        // No-op on non-iOS platforms
     }
-    
+
     /**
      * Play a transient haptic effect directly
      * Useful for custom haptic effects with specific intensity and sharpness
@@ -321,7 +222,11 @@ class ExpoBetterHaptics {
      */
     static async playTransient(intensity: number, sharpness: number): Promise<void> {
         await this.ensureInitialized()
-        await ExpoBetterHapticsModule.playTransient(intensity, sharpness)
+
+        if (Platform.OS === 'ios') {
+            await ExpoBetterHapticsModule.playTransient(intensity, sharpness)
+        }
+        // No-op on non-iOS platforms
     }
 
     /**

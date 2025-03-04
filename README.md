@@ -2,7 +2,7 @@
 
 An enhanced haptics package for Expo apps offering fine-grained control over haptic feedback on iOS devices.
 
-> **Note:** This module is iOS-only and leverages the CoreHaptics API.
+> **Note:** This module is iOS-only and leverages the CoreHaptics API. All methods will safely no-op on non-iOS platforms.
 
 ## Features
 
@@ -151,7 +151,7 @@ if (isSupported) {
 
     // Do haptic operations...
 
-    // When done, you can explicitly stop the engine to save power
+    // When done, you can explicitly stop the engine (optional)
     await ExpoBetterHaptics.stop()
 }
 ```
@@ -172,27 +172,42 @@ if (isSupported) {
 
 #### High-Level Haptics
 
-- `impactLight(options?)` - Plays a light impact haptic
-- `impactMedium(options?)` - Plays a medium impact haptic
-- `impactHeavy(options?)` - Plays a heavy impact haptic
-- `impactSoft(options?)` - Plays a soft impact haptic
-- `impactRigid(options?)` - Plays a rigid impact haptic
+- `impactLight()` - Plays a light impact haptic
+- `impactMedium()` - Plays a medium impact haptic
+- `impactHeavy()` - Plays a heavy impact haptic
+- `impactSoft()` - Plays a soft impact haptic
+- `impactRigid()` - Plays a rigid impact haptic
 - `selection()` - Plays a selection haptic
 - `notificationSuccess()` - Plays a success notification haptic
 - `notificationWarning()` - Plays a warning notification haptic
 - `notificationError()` - Plays an error notification haptic
 - `vibrate(options?)` - Plays a continuous vibration
+    - `options.intensity` (number, 0-1) - Intensity of the vibration, defaults to 0.8
+    - `options.sharpness` (number, 0-1) - Sharpness of the vibration, defaults to 0.5
+    - `options.duration` (number) - Duration in seconds, defaults to 0.5
 
 #### Low-Level Haptics
 
 - `playTransient(intensity, sharpness)` - Plays a transient haptic with customized parameters
+    - `intensity` (number, 0-1) - Required. Intensity of the haptic effect
+    - `sharpness` (number, 0-1) - Required. Sharpness of the haptic effect
 - `playContinuous(intensity, sharpness, duration)` - Plays a continuous haptic with customized parameters
+    - `intensity` (number, 0-1) - Required. Intensity of the haptic effect
+    - `sharpness` (number, 0-1) - Required. Sharpness of the haptic effect
+    - `duration` (number) - Required. Duration in seconds
 - `play(events)` - Plays a custom haptic pattern defined by an array of haptic events
 
 #### Helper Methods
 
 - `createTransientEvent(options)` - Creates a transient haptic event object
+    - `options.intensity` (number, 0-1) - Intensity of the haptic effect
+    - `options.sharpness` (number, 0-1) - Sharpness of the haptic effect
+    - `options.time` (number) - Time offset in seconds for when this event should occur
 - `createContinuousEvent(options)` - Creates a continuous haptic event object
+    - `options.intensity` (number, 0-1) - Intensity of the haptic effect
+    - `options.sharpness` (number, 0-1) - Sharpness of the haptic effect
+    - `options.time` (number) - Time offset in seconds for when this event should occur
+    - `options.duration` (number) - Duration of the continuous effect in seconds
 
 ### Types
 
@@ -203,14 +218,12 @@ if (isSupported) {
 
 ## Compared to Expo Haptics
 
-`expo-better-haptics` offers significant improvements over the standard `expo-haptics`:
+`expo-better-haptics` offers more granular control over the standard `expo-haptics`:
 
 1. **Fine-grained control**: Adjust intensity and sharpness parameters
-2. **Continuous haptics**: Standard haptics only offers transient impacts
+2. **Continuous haptics**: Standard haptics only offers `UIImpactFeedbackGenerator` preset impacts
 3. **Complex patterns**: Create sequences of haptic events with precise timing
-4. **More natural feel**: The CoreHaptics API produces more realistic haptic sensations
-5. **Longer effects**: Create sustained haptic experiences of any duration
-6. **Custom envelope**: Control attack and decay times for more nuanced feedback
+4. **Longer effects**: Create sustained haptic experiences of any duration
 
 ## Example App
 

@@ -1,7 +1,7 @@
 {
   "name": "expo-better-haptics",
-  "version": "0.1.0",
-  "description": "expo-haptics but better",
+  "version": "1.0.0",
+  "description": "expo-haptics but better (support for custom haptics and patterns)",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
@@ -25,11 +25,10 @@
   "bugs": {
     "url": "https://github.com/carter-0/expo-better-haptics/issues"
   },
-  "author": "carter-0 <carterannandale@gmail.com> (https://github.com/carter-0)",
+  "author": "carter-0 <carter@carter.red> (https://github.com/carter-0)",
   "license": "MIT",
   "homepage": "https://github.com/carter-0/expo-better-haptics#readme",
   "dependencies": {
-    "@react-native-community/slider": "^4.5.6",
     "eslint-config-prettier": "^10.0.2"
   },
   "devDependencies": {
