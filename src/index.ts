@@ -1,10 +1,28 @@
-import { Platform } from 'react-native'
-
 import { DynamicParameterID, HapticEvent, HapticEventParameterType, HapticEventType } from './ExpoBetterHaptics.types'
 import ExpoBetterHapticsModule from './ExpoBetterHapticsModule'
 
 // Reexport types
 export { DynamicParameterID, HapticEvent, HapticEventParameterType, HapticEventType }
+
+/**
+ * ImpactFeedbackStyle enum for impact feedback styles
+ */
+export enum ImpactFeedbackStyle {
+    Light = 'light',
+    Medium = 'medium',
+    Heavy = 'heavy',
+    Rigid = 'rigid',
+    Soft = 'soft',
+}
+
+/**
+ * NotificationFeedbackType enum for notification feedback types
+ */
+export enum NotificationFeedbackType {
+    Success = 'success',
+    Warning = 'warning',
+    Error = 'error',
+}
 
 /**
  * High-level API for ExpoBetterHaptics
@@ -41,146 +59,90 @@ class ExpoBetterHaptics {
     }
 
     /**
-     * Play a light impact haptic effect
-     * Uses native UIImpactFeedbackGenerator with .light style on iOS
-     * No-op on non-iOS platforms
-     * @returns Promise that resolves when the haptic effect is played
+     * Start the haptic engine explicitly
      */
-    static async impactLight(): Promise<void> {
+    static async start(): Promise<void> {
         await this.ensureInitialized()
-
-        if (Platform.OS === 'ios') {
-            await ExpoBetterHapticsModule.impactLight()
-        }
-        // No-op on non-iOS platforms
+        await ExpoBetterHapticsModule.start()
     }
 
     /**
-     * Play a medium impact haptic effect
-     * Uses native UIImpactFeedbackGenerator with .medium style on iOS
-     * No-op on non-iOS platforms
-     * @returns Promise that resolves when the haptic effect is played
+     * Stop the haptic engine explicitly
      */
-    static async impactMedium(): Promise<void> {
-        await this.ensureInitialized()
-
-        if (Platform.OS === 'ios') {
-            await ExpoBetterHapticsModule.impactMedium()
+    static async stop(): Promise<void> {
+        if (!this._initialized) {
+            return
         }
-        // No-op on non-iOS platforms
+        await ExpoBetterHapticsModule.stop()
     }
 
     /**
-     * Play a heavy impact haptic effect
-     * Uses native UIImpactFeedbackGenerator with .heavy style on iOS
-     * No-op on non-iOS platforms
+     * Trigger impact feedback.
+     * @param style - Impact feedback style (light, medium, heavy, rigid, or soft)
      * @returns Promise that resolves when the haptic effect is played
      */
-    static async impactHeavy(): Promise<void> {
+    static async impactAsync(style: ImpactFeedbackStyle = ImpactFeedbackStyle.Medium): Promise<void> {
         await this.ensureInitialized()
 
-        if (Platform.OS === 'ios') {
-            await ExpoBetterHapticsModule.impactHeavy()
+        switch (style) {
+            case ImpactFeedbackStyle.Light:
+                await ExpoBetterHapticsModule.impactLight()
+                break
+            case ImpactFeedbackStyle.Medium:
+                await ExpoBetterHapticsModule.impactMedium()
+                break
+            case ImpactFeedbackStyle.Heavy:
+                await ExpoBetterHapticsModule.impactHeavy()
+                break
+            case ImpactFeedbackStyle.Rigid:
+                await ExpoBetterHapticsModule.impactRigid()
+                break
+            case ImpactFeedbackStyle.Soft:
+                await ExpoBetterHapticsModule.impactSoft()
+                break
+            default:
+                await ExpoBetterHapticsModule.impactMedium()
         }
-        // No-op on non-iOS platforms
     }
 
     /**
-     * Play a soft impact haptic effect
-     * Uses native UIImpactFeedbackGenerator with .soft style on iOS
-     * No-op on non-iOS platforms
+     * Trigger notification feedback.
+     * @param type - Notification feedback type (success, warning, or error)
      * @returns Promise that resolves when the haptic effect is played
      */
-    static async impactSoft(): Promise<void> {
+    static async notificationAsync(type: NotificationFeedbackType = NotificationFeedbackType.Success): Promise<void> {
         await this.ensureInitialized()
 
-        if (Platform.OS === 'ios') {
-            await ExpoBetterHapticsModule.impactSoft()
+        switch (type) {
+            case NotificationFeedbackType.Success:
+                await ExpoBetterHapticsModule.notificationSuccess()
+                break
+            case NotificationFeedbackType.Warning:
+                await ExpoBetterHapticsModule.notificationWarning()
+                break
+            case NotificationFeedbackType.Error:
+                await ExpoBetterHapticsModule.notificationError()
+                break
+            default:
+                await ExpoBetterHapticsModule.notificationSuccess()
         }
-        // No-op on non-iOS platforms
     }
 
     /**
-     * Play a rigid impact haptic effect
-     * Uses native UIImpactFeedbackGenerator with .rigid style on iOS
-     * No-op on non-iOS platforms
+     * Trigger selection feedback.
      * @returns Promise that resolves when the haptic effect is played
      */
-    static async impactRigid(): Promise<void> {
+    static async selectionAsync(): Promise<void> {
         await this.ensureInitialized()
-
-        if (Platform.OS === 'ios') {
-            await ExpoBetterHapticsModule.impactRigid()
-        }
-        // No-op on non-iOS platforms
+        await ExpoBetterHapticsModule.selection()
     }
 
     /**
-     * Play a success notification haptic effect
-     * Uses native UINotificationFeedbackGenerator with .success type on iOS
-     * No-op on non-iOS platforms
+     * Play a continuous vibration with customizable parameters.
+     * @param options - Vibration options (intensity, sharpness, duration)
      * @returns Promise that resolves when the haptic effect is played
      */
-    static async notificationSuccess(): Promise<void> {
-        await this.ensureInitialized()
-
-        if (Platform.OS === 'ios') {
-            await ExpoBetterHapticsModule.notificationSuccess()
-        }
-        // No-op on non-iOS platforms
-    }
-
-    /**
-     * Play a warning notification haptic effect
-     * Uses native UINotificationFeedbackGenerator with .warning type on iOS
-     * No-op on non-iOS platforms
-     * @returns Promise that resolves when the haptic effect is played
-     */
-    static async notificationWarning(): Promise<void> {
-        await this.ensureInitialized()
-
-        if (Platform.OS === 'ios') {
-            await ExpoBetterHapticsModule.notificationWarning()
-        }
-        // No-op on non-iOS platforms
-    }
-
-    /**
-     * Play an error notification haptic effect
-     * Uses native UINotificationFeedbackGenerator with .error type on iOS
-     * No-op on non-iOS platforms
-     * @returns Promise that resolves when the haptic effect is played
-     */
-    static async notificationError(): Promise<void> {
-        await this.ensureInitialized()
-
-        if (Platform.OS === 'ios') {
-            await ExpoBetterHapticsModule.notificationError()
-        }
-        // No-op on non-iOS platforms
-    }
-
-    /**
-     * Play a selection haptic effect
-     * Uses native UISelectionFeedbackGenerator on iOS
-     * No-op on non-iOS platforms
-     * @returns Promise that resolves when the haptic effect is played
-     */
-    static async selection(): Promise<void> {
-        await this.ensureInitialized()
-
-        if (Platform.OS === 'ios') {
-            await ExpoBetterHapticsModule.selection()
-        }
-        // No-op on non-iOS platforms
-    }
-
-    /**
-     * Play a continuous haptic effect
-     * @param options Options for the continuous effect
-     * @returns Promise that resolves when the haptic effect is played
-     */
-    static async vibrate(
+    static async vibrateAsync(
         options: {
             intensity?: number
             sharpness?: number
@@ -188,50 +150,51 @@ class ExpoBetterHaptics {
         } = {},
     ): Promise<void> {
         await this.ensureInitialized()
-
-        if (Platform.OS === 'ios') {
-            await ExpoBetterHapticsModule.playContinuous(
-                options.intensity ?? 0.8,
-                options.sharpness ?? 0.5,
-                options.duration ?? 0.5,
-            )
-        }
-        // No-op on non-iOS platforms
+        await ExpoBetterHapticsModule.playContinuous(
+            options.intensity ?? 0.8,
+            options.sharpness ?? 0.5,
+            options.duration ?? 0.5,
+        )
     }
 
     /**
-     * Play a custom haptic pattern
-     * @param events Array of haptic events that make up the pattern
+     * Play a custom haptic pattern.
+     * @param events - Array of haptic events that make up the pattern
      * @returns Promise that resolves when the haptic pattern is played
      */
-    static async play(events: HapticEvent[]): Promise<void> {
+    static async playPatternAsync(events: HapticEvent[]): Promise<void> {
         await this.ensureInitialized()
-
-        if (Platform.OS === 'ios') {
-            await ExpoBetterHapticsModule.playPattern(events)
-        }
-        // No-op on non-iOS platforms
+        await ExpoBetterHapticsModule.playPattern(events)
     }
 
     /**
-     * Play a transient haptic effect directly
-     * Useful for custom haptic effects with specific intensity and sharpness
-     * @param intensity The intensity of the haptic effect (0.0 to 1.0)
-     * @param sharpness The sharpness of the haptic effect (0.0 to 1.0)
+     * Play a transient haptic effect directly.
+     * Useful for custom haptic effects with specific intensity and sharpness.
+     * @param intensity - The intensity of the haptic effect (0.0 to 1.0)
+     * @param sharpness - The sharpness of the haptic effect (0.0 to 1.0)
      * @returns Promise that resolves when the haptic effect is played
      */
-    static async playTransient(intensity: number, sharpness: number): Promise<void> {
+    static async playTransientAsync(intensity: number, sharpness: number): Promise<void> {
         await this.ensureInitialized()
-
-        if (Platform.OS === 'ios') {
-            await ExpoBetterHapticsModule.playTransient(intensity, sharpness)
-        }
-        // No-op on non-iOS platforms
+        await ExpoBetterHapticsModule.playTransient(intensity, sharpness)
     }
 
     /**
-     * Create a transient haptic event
-     * Helper method to simplify creating transient haptic events
+     * Play a continuous haptic effect directly.
+     * Useful for custom haptic effects with specific intensity, sharpness, and duration.
+     * @param intensity - The intensity of the haptic effect (0.0 to 1.0)
+     * @param sharpness - The sharpness of the haptic effect (0.0 to 1.0)
+     * @param duration - The duration of the haptic effect in seconds
+     * @returns Promise that resolves when the haptic effect is played
+     */
+    static async playContinuousAsync(intensity: number, sharpness: number, duration: number): Promise<void> {
+        await this.ensureInitialized()
+        await ExpoBetterHapticsModule.playContinuous(intensity, sharpness, duration)
+    }
+
+    /**
+     * Create a transient haptic event.
+     * Helper method to simplify creating transient haptic events.
      */
     static createTransientEvent(
         options: {
@@ -257,8 +220,8 @@ class ExpoBetterHaptics {
     }
 
     /**
-     * Create a continuous haptic event
-     * Helper method to simplify creating continuous haptic events
+     * Create a continuous haptic event.
+     * Helper method to simplify creating continuous haptic events.
      */
     static createContinuousEvent(
         options: {
@@ -271,7 +234,7 @@ class ExpoBetterHaptics {
         return {
             type: 'continuous', // Use string type instead of numeric constant
             time: options.time ?? 0,
-            duration: options.duration ?? 0.5,
+            duration: options.duration ?? 0.1,
             parameters: [
                 {
                     id: HapticEventParameterType.Intensity,
@@ -287,13 +250,34 @@ class ExpoBetterHaptics {
 
     /**
      * Ensure the haptic engine is initialized
-     * @private
+     * Internal helper method
      */
     private static async ensureInitialized(): Promise<void> {
-        if (!this._initialized) {
+        if (!this._initialized && this.isSupported) {
             await this.initialize()
         }
     }
 }
 
 export default ExpoBetterHaptics
+
+// Export all functions with consistent Async naming convention, properly bound to the class
+export const impactAsync = ExpoBetterHaptics.impactAsync.bind(ExpoBetterHaptics)
+export const notificationAsync = ExpoBetterHaptics.notificationAsync.bind(ExpoBetterHaptics)
+export const selectionAsync = ExpoBetterHaptics.selectionAsync.bind(ExpoBetterHaptics)
+export const vibrateAsync = ExpoBetterHaptics.vibrateAsync.bind(ExpoBetterHaptics)
+export const playPatternAsync = ExpoBetterHaptics.playPatternAsync.bind(ExpoBetterHaptics)
+export const playTransientAsync = ExpoBetterHaptics.playTransientAsync.bind(ExpoBetterHaptics)
+export const playContinuousAsync = ExpoBetterHaptics.playContinuousAsync.bind(ExpoBetterHaptics)
+
+// Export core functions
+export const initialize = ExpoBetterHaptics.initialize.bind(ExpoBetterHaptics)
+export const start = ExpoBetterHaptics.start.bind(ExpoBetterHaptics)
+export const stop = ExpoBetterHaptics.stop.bind(ExpoBetterHaptics)
+
+// Export helper functions - these don't use 'this', but binding for consistency
+export const createTransientEvent = ExpoBetterHaptics.createTransientEvent.bind(ExpoBetterHaptics)
+export const createContinuousEvent = ExpoBetterHaptics.createContinuousEvent.bind(ExpoBetterHaptics)
+
+// Export constants
+export const isSupported = ExpoBetterHaptics.isSupported

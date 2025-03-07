@@ -1,24 +1,22 @@
 # Expo Better Haptics
 
-An enhanced haptics package for Expo apps offering fine-grained control over haptic feedback on iOS devices.
-
-> **Note:** This module is iOS-only and leverages the CoreHaptics API. All methods will safely no-op on non-iOS platforms.
+A drop-in replacement for `expo-haptics` offering fine-grained control over haptic feedback on iOS and Android devices.
 
 ## Features
 
-- 🎛️ **Fine-grained control** over haptic intensity and sharpness
-- 🔄 **Continuous haptic feedback** with customizable duration
-- ⚡ **Transient impacts** with multiple intensity levels
+- 🤖 **Better Android support** using dedicated Haptics APIs
+- 💿 **Drop-in replacement** for `expo-haptics`
+- ⚡ **Continuous or transient impacts** with multiple intensity levels
 - 🎵 **Complex haptic patterns** with precise timing and sequencing
 - 💥 **Pre-built notification patterns** (success, warning, error)
-- 🔊 **Simple high-level API** for common haptic tasks
-- 💪 **Advanced pattern creation** for custom experiences
+- 📱 **Cross-platform support** for both iOS and Android
 
 ## Requirements
 
 - Expo SDK 49 or newer
-- iOS 13+ (CoreHaptics is only available on iOS 13+)
-- iPhone 8 or newer (devices that support Taptic Engine)
+- iOS 13+ for CoreHaptics API (iPhone 8 or newer)
+- Android 8+ (API level 26) for enhanced vibration effects
+- Android 11+ (API level 30) for Haptic Compositions and Primitives
 
 ## Installation
 
@@ -31,31 +29,25 @@ npx expo install expo-better-haptics
 ### Basic Usage
 
 ```javascript
-import ExpoBetterHaptics from 'expo-better-haptics'
+import * as Haptics from 'expo-better-haptics'
 
-// Play a light impact
-await ExpoBetterHaptics.impactLight()
-
-// Play a medium impact
-await ExpoBetterHaptics.impactMedium()
-
-// Play a heavy impact
-await ExpoBetterHaptics.impactHeavy()
-
-// Play soft and rigid impacts
-await ExpoBetterHaptics.impactSoft()
-await ExpoBetterHaptics.impactRigid()
+// Play impact haptics
+await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
+await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
+await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid)
 
 // Play notification haptics
-await ExpoBetterHaptics.notificationSuccess()
-await ExpoBetterHaptics.notificationWarning()
-await ExpoBetterHaptics.notificationError()
+await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)
+await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
 
 // Play selection feedback
-await ExpoBetterHaptics.selection()
+await Haptics.selectionAsync()
 
 // Play a continuous vibration
-await ExpoBetterHaptics.vibrate({
+await Haptics.vibrateAsync({
     intensity: 0.8, // 0-1, defaults to 0.8
     sharpness: 0.5, // 0-1, defaults to 0.5
     duration: 0.5, // in seconds, defaults to 0.5
@@ -67,42 +59,43 @@ await ExpoBetterHaptics.vibrate({
 #### Custom Transient Haptics
 
 ```javascript
-import ExpoBetterHaptics from 'expo-better-haptics'
+import * as Haptics from 'expo-better-haptics'
 
 // Play a custom transient haptic with specific intensity and sharpness
-await ExpoBetterHaptics.playTransient(0.7, 0.9)
+await Haptics.playTransientAsync(0.7, 0.9)
 ```
 
 #### Custom Continuous Haptics
 
 ```javascript
-import ExpoBetterHaptics from 'expo-better-haptics'
+import * as Haptics from 'expo-better-haptics'
 
 // Play a continuous haptic with specific intensity, sharpness, and duration
-await ExpoBetterHaptics.playContinuous(0.6, 0.3, 1.2) // 1.2 seconds
+await Haptics.playContinuousAsync(0.6, 0.3, 1.2) // 1.2 seconds
 ```
 
 #### Custom Haptic Patterns
 
 ```javascript
-import ExpoBetterHaptics, { HapticEvent, HapticEventType, HapticEventParameterType } from 'expo-better-haptics'
+import * as Haptics from 'expo-better-haptics'
+import { HapticEvent, HapticEventType, HapticEventParameterType } from 'expo-better-haptics'
 
 // Create a custom pattern using helper methods
 const customPattern = [
     // First tap at time 0
-    ExpoBetterHaptics.createTransientEvent({
+    Haptics.createTransientEvent({
         intensity: 0.8,
         sharpness: 0.5,
         time: 0,
     }),
     // Second tap after a short pause
-    ExpoBetterHaptics.createTransientEvent({
+    Haptics.createTransientEvent({
         intensity: 0.5,
         sharpness: 0.3,
         time: 0.15,
     }),
     // Longer continuous effect after another pause
-    ExpoBetterHaptics.createContinuousEvent({
+    Haptics.createContinuousEvent({
         intensity: 1.0,
         sharpness: 0.7,
         time: 0.4,
@@ -111,7 +104,7 @@ const customPattern = [
 ]
 
 // Play the custom pattern
-await ExpoBetterHaptics.play(customPattern)
+await Haptics.playPatternAsync(customPattern)
 
 // Or create patterns manually with full control
 const manualPattern = [
@@ -134,25 +127,25 @@ const manualPattern = [
     },
 ]
 
-await ExpoBetterHaptics.play(manualPattern)
+await Haptics.playPatternAsync(manualPattern)
 ```
 
 ### Checking Support and Managing Engine
 
 ```javascript
-import ExpoBetterHaptics from 'expo-better-haptics'
+import * as Haptics from 'expo-better-haptics'
 
 // Check if haptics are supported on the device
-const isSupported = ExpoBetterHaptics.isSupported
+const isSupported = Haptics.isSupported
 
 if (isSupported) {
     // Explicitly initialize the haptics engine (optional - will auto-initialize when needed)
-    await ExpoBetterHaptics.initialize()
+    await Haptics.initialize()
 
     // Do haptic operations...
 
     // When done, you can explicitly stop the engine (optional)
-    await ExpoBetterHaptics.stop()
+    await Haptics.stop()
 }
 ```
 
@@ -170,32 +163,28 @@ if (isSupported) {
 - `start()` - Explicitly starts the haptic engine
 - `stop()` - Explicitly stops the haptic engine
 
-#### High-Level Haptics
+#### Standard Haptics
 
-- `impactLight()` - Plays a light impact haptic
-- `impactMedium()` - Plays a medium impact haptic
-- `impactHeavy()` - Plays a heavy impact haptic
-- `impactSoft()` - Plays a soft impact haptic
-- `impactRigid()` - Plays a rigid impact haptic
-- `selection()` - Plays a selection haptic
-- `notificationSuccess()` - Plays a success notification haptic
-- `notificationWarning()` - Plays a warning notification haptic
-- `notificationError()` - Plays an error notification haptic
-- `vibrate(options?)` - Plays a continuous vibration
+- `impactAsync(style?)` - Plays an impact haptic with the specified style
+    - `style` (ImpactFeedbackStyle) - Style of impact, defaults to Medium
+- `notificationAsync(type?)` - Plays a notification haptic with the specified type
+    - `type` (NotificationFeedbackType) - Type of notification, defaults to Success
+- `selectionAsync()` - Plays a selection haptic
+
+#### Advanced Haptics
+
+- `vibrateAsync(options?)` - Plays a customizable continuous vibration
     - `options.intensity` (number, 0-1) - Intensity of the vibration, defaults to 0.8
     - `options.sharpness` (number, 0-1) - Sharpness of the vibration, defaults to 0.5
     - `options.duration` (number) - Duration in seconds, defaults to 0.5
-
-#### Low-Level Haptics
-
-- `playTransient(intensity, sharpness)` - Plays a transient haptic with customized parameters
+- `playTransientAsync(intensity, sharpness)` - Plays a transient haptic with customized parameters
     - `intensity` (number, 0-1) - Required. Intensity of the haptic effect
     - `sharpness` (number, 0-1) - Required. Sharpness of the haptic effect
-- `playContinuous(intensity, sharpness, duration)` - Plays a continuous haptic with customized parameters
+- `playContinuousAsync(intensity, sharpness, duration)` - Plays a continuous haptic with customized parameters
     - `intensity` (number, 0-1) - Required. Intensity of the haptic effect
     - `sharpness` (number, 0-1) - Required. Sharpness of the haptic effect
     - `duration` (number) - Required. Duration in seconds
-- `play(events)` - Plays a custom haptic pattern defined by an array of haptic events
+- `playPatternAsync(events)` - Plays a custom haptic pattern defined by an array of haptic events
 
 #### Helper Methods
 
@@ -209,6 +198,21 @@ if (isSupported) {
     - `options.time` (number) - Time offset in seconds for when this event should occur
     - `options.duration` (number) - Duration of the continuous effect in seconds
 
+### Enums
+
+- `ImpactFeedbackStyle` - Enum for impact feedback styles
+
+    - `Light` - A collision between small, light user interface elements
+    - `Medium` - A collision between moderately sized user interface elements
+    - `Heavy` - A collision between large, heavy user interface elements
+    - `Rigid` - A collision between user interface elements that are rigid
+    - `Soft` - A collision between user interface elements that are soft
+
+- `NotificationFeedbackType` - Enum for notification feedback types
+    - `Success` - A notification feedback type indicating that a task has completed successfully
+    - `Warning` - A notification feedback type indicating that a task has produced a warning
+    - `Error` - A notification feedback type indicating that a task has failed
+
 ### Types
 
 - `HapticEventType` - Enum for haptic event types
@@ -216,14 +220,89 @@ if (isSupported) {
 - `HapticEvent` - Interface for haptic events
 - `HapticParameter` - Interface for haptic parameters
 
+## Platform-Specific Implementation
+
+### iOS
+
+On iOS, this module uses:
+
+- **CoreHaptics API** for fine-grained haptic control (iOS 13+)
+- **UIImpactFeedbackGenerator** for impact feedback
+- **UINotificationFeedbackGenerator** for notification feedback
+- **UISelectionFeedbackGenerator** for selection feedback
+
+### Android
+
+On Android, this module uses:
+
+- **Haptic Compositions API** with primitives for rich haptic feedback (Android 11+)
+- **VibrationEffect API** for amplitude control and waveforms (Android 8+)
+- **View.performHapticFeedback** for simple haptic feedback
+- Intelligent fallbacks for older devices
+
+## Feature Compatibility by Platform
+
+| Feature                   | iOS | Android 11+ | Android 8-10 | Android <8 |
+| ------------------------- | --- | ----------- | ------------ | ---------- |
+| Impact feedback           | ✓   | ✓           | ✓            | Limited    |
+| Notification patterns     | ✓   | ✓           | ✓            | Limited    |
+| Selection feedback        | ✓   | ✓           | ✓            | ✓          |
+| Intensity control         | ✓   | ✓           | ✓            | ✗          |
+| Sharpness control         | ✓   | Limited     | ✗            | ✗          |
+| Custom patterns           | ✓   | ✓           | Limited      | ✗          |
+| Continuous effects        | ✓   | ✓           | ✓            | Limited    |
+| Dynamic parameter control | ✓   | Limited     | ✗            | ✗          |
+
 ## Compared to Expo Haptics
 
-`expo-better-haptics` offers more granular control over the standard `expo-haptics`:
+`expo-better-haptics` offers more capabilities over the standard `expo-haptics`:
 
-1. **Fine-grained control**: Adjust intensity and sharpness parameters
-2. **Continuous haptics**: Standard haptics only offers `UIImpactFeedbackGenerator` preset impacts
+1. **Fine-grained control**: Adjust intensity and sharpness parameters on both iOS and Android
+2. **Continuous haptics**: Standard haptics only offers preset impacts
 3. **Complex patterns**: Create sequences of haptic events with precise timing
 4. **Longer effects**: Create sustained haptic experiences of any duration
+5. **Cross-platform**: Full Android support with proper haptic implementations
+
+### API Compatibility with expo-haptics
+
+This library is fully compatible with `expo-haptics`, making migration easy:
+
+```javascript
+// Replace this:
+import * as Haptics from 'expo-haptics'
+
+// With this:
+import * as Haptics from 'expo-better-haptics'
+```
+
+All existing code will continue to work:
+
+```javascript
+// Standard expo-haptics API
+await Haptics.impactAsync() // Default medium impact
+await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
+await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid)
+await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
+
+await Haptics.notificationAsync() // Default success notification
+await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)
+await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+
+await Haptics.selectionAsync()
+```
+
+In addition, you'll gain access to more powerful haptic features:
+
+```javascript
+// Extended functionality
+await Haptics.vibrateAsync({ intensity: 0.8, sharpness: 0.6, duration: 0.5 })
+await Haptics.playTransientAsync(0.7, 0.9)
+await Haptics.playContinuousAsync(0.6, 0.3, 1.2)
+await Haptics.playPatternAsync(customPattern)
+```
 
 ## Example App
 
@@ -231,17 +310,33 @@ The module includes an example app that demonstrates all the haptic capabilities
 
 ```bash
 cd example
-npx expo run:ios --device
+npx expo run:android --device  # For Android testing
+npx expo run:ios --device      # For iOS testing
 ```
 
-> Note: Must be run on a physical iOS device to feel the haptic feedback.
+> Note: Must be run on a physical device to feel the haptic feedback.
+
+## Android Implementation Details
+
+The Android implementation uses a tiered approach to provide the best haptic experience based on the device's capabilities:
+
+1. **Android 11+ (API 30+)**: Uses Haptic Composition API with primitives like TICK, CLICK, THUD, QUICK_RISE, etc.
+2. **Android 8-10 (API 26-29)**: Uses VibrationEffect API with amplitude control and waveform patterns
+3. **Older Android versions**: Falls back to basic vibration patterns
+
+The implementation intelligently maps iOS haptic concepts to their Android equivalents:
+
+- **Intensity**: Maps to vibration amplitude (0-255)
+- **Sharpness**: Maps to different primitive types or vibration duration
+- **Patterns**: Converted to appropriate waveform patterns
 
 ## Limitations
 
-- iOS-only (CoreHaptics API is not available on Android)
-- Requires iOS 13+ and iPhone 8 or newer
+- iOS CoreHaptics requires iOS 13+ and iPhone 8 or newer
+- Android haptic primitives require Android 11+ (API level 30)
 - Must be run on a physical device to feel the haptics
-- Haptics may not work if device is in silent mode or low power mode
+- Haptics may not work if device is in silent mode, battery saver mode, or has haptics disabled
+- Some Android devices have limited haptic capability hardware
 
 ## Authors
 
