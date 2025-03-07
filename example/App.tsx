@@ -1,5 +1,6 @@
 import Slider from '@react-native-community/slider'
-import ExpoBetterHaptics, { HapticEvent, HapticEventParameterType } from 'expo-better-haptics'
+import * as Haptics from 'expo-better-haptics'
+import { HapticEvent, HapticEventParameterType } from 'expo-better-haptics'
 import React, { useEffect, useState } from 'react'
 import { Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
@@ -16,7 +17,7 @@ export default function App() {
         function checkHapticsSupport() {
             try {
                 // Check if haptics are supported
-                const supported = ExpoBetterHaptics.isSupported
+                const supported = Haptics.isSupported
                 setIsSupported(supported)
                 setInitialized(supported) // Auto-init when needed, so we can consider it ready
 
@@ -38,32 +39,23 @@ export default function App() {
     const createCustomPattern = (): HapticEvent[] => {
         return [
             // First tap
-            {
-                type: 'transient', // Use string type instead of numeric constant
+            Haptics.createTransientEvent({
+                intensity: 0.8,
+                sharpness: 0.5,
                 time: 0,
-                parameters: [
-                    { id: HapticEventParameterType.Intensity, value: 0.8 },
-                    { id: HapticEventParameterType.Sharpness, value: 0.5 },
-                ],
-            },
+            }),
             // Small pause then second tap
-            {
-                type: 'transient', // Use string type instead of numeric constant
+            Haptics.createTransientEvent({
+                intensity: 0.5,
+                sharpness: 0.3,
                 time: 0.15,
-                parameters: [
-                    { id: HapticEventParameterType.Intensity, value: 0.5 },
-                    { id: HapticEventParameterType.Sharpness, value: 0.3 },
-                ],
-            },
+            }),
             // Longer pause then third tap
-            {
-                type: 'transient', // Use string type instead of numeric constant
+            Haptics.createTransientEvent({
+                intensity: 1.0,
+                sharpness: 0.7,
                 time: 0.4,
-                parameters: [
-                    { id: HapticEventParameterType.Intensity, value: 1.0 },
-                    { id: HapticEventParameterType.Sharpness, value: 0.7 },
-                ],
-            },
+            }),
         ]
     }
 
@@ -79,14 +71,11 @@ export default function App() {
             // First beat of each measure is sharper
             const sharpness = index % 4 === 0 ? 0.7 : 0.3
 
-            events.push({
-                type: 'transient', // Use string type instead of numeric constant
+            events.push(Haptics.createTransientEvent({
+                intensity,
+                sharpness,
                 time,
-                parameters: [
-                    { id: HapticEventParameterType.Intensity, value: intensity },
-                    { id: HapticEventParameterType.Sharpness, value: sharpness },
-                ],
-            })
+            }))
 
             time += beat
         })
@@ -111,7 +100,7 @@ export default function App() {
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" />
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
-                <Text style={styles.title}>ExpoBetterHaptics Demo</Text>
+                <Text style={styles.title}>expo-better-haptics Demo</Text>
 
                 <View style={styles.statusContainer}>
                     <Text style={styles.statusLabel}>Status:</Text>
@@ -122,11 +111,11 @@ export default function App() {
                 </View>
 
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Basic Impacts</Text>
+                    <Text style={styles.sectionTitle}>Impact Feedback</Text>
                     <View style={styles.buttonRow}>
                         <TouchableOpacity
                             style={styles.button}
-                            onPress={() => handleHapticButton(() => ExpoBetterHaptics.impactLight(), 'Light Impact')}
+                            onPress={() => handleHapticButton(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 'Light Impact')}
                             disabled={!isSupported}
                         >
                             <Text style={styles.buttonText}>Light</Text>
@@ -134,7 +123,7 @@ export default function App() {
 
                         <TouchableOpacity
                             style={styles.button}
-                            onPress={() => handleHapticButton(() => ExpoBetterHaptics.impactMedium(), 'Medium Impact')}
+                            onPress={() => handleHapticButton(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 'Medium Impact')}
                             disabled={!isSupported}
                         >
                             <Text style={styles.buttonText}>Medium</Text>
@@ -142,7 +131,7 @@ export default function App() {
 
                         <TouchableOpacity
                             style={styles.button}
-                            onPress={() => handleHapticButton(() => ExpoBetterHaptics.impactHeavy(), 'Heavy Impact')}
+                            onPress={() => handleHapticButton(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy), 'Heavy Impact')}
                             disabled={!isSupported}
                         >
                             <Text style={styles.buttonText}>Heavy</Text>
@@ -151,7 +140,7 @@ export default function App() {
                     <View style={styles.buttonRow}>
                         <TouchableOpacity
                             style={styles.button}
-                            onPress={() => handleHapticButton(() => ExpoBetterHaptics.impactSoft(), 'Soft Impact')}
+                            onPress={() => handleHapticButton(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft), 'Soft Impact')}
                             disabled={!isSupported}
                         >
                             <Text style={styles.buttonText}>Soft</Text>
@@ -159,7 +148,7 @@ export default function App() {
 
                         <TouchableOpacity
                             style={styles.button}
-                            onPress={() => handleHapticButton(() => ExpoBetterHaptics.impactRigid(), 'Rigid Impact')}
+                            onPress={() => handleHapticButton(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid), 'Rigid Impact')}
                             disabled={!isSupported}
                         >
                             <Text style={styles.buttonText}>Rigid</Text>
@@ -168,13 +157,13 @@ export default function App() {
                 </View>
 
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Notifications</Text>
+                    <Text style={styles.sectionTitle}>Notification Feedback</Text>
                     <View style={styles.buttonRow}>
                         <TouchableOpacity
                             style={[styles.button, styles.successButton]}
                             onPress={() =>
                                 handleHapticButton(
-                                    () => ExpoBetterHaptics.notificationSuccess(),
+                                    () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
                                     'Success Notification',
                                 )
                             }
@@ -187,7 +176,7 @@ export default function App() {
                             style={[styles.button, styles.warningButton]}
                             onPress={() =>
                                 handleHapticButton(
-                                    () => ExpoBetterHaptics.notificationWarning(),
+                                    () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning),
                                     'Warning Notification',
                                 )
                             }
@@ -199,7 +188,10 @@ export default function App() {
                         <TouchableOpacity
                             style={[styles.button, styles.errorButton]}
                             onPress={() =>
-                                handleHapticButton(() => ExpoBetterHaptics.notificationError(), 'Error Notification')
+                                handleHapticButton(
+                                    () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error), 
+                                    'Error Notification'
+                                )
                             }
                             disabled={!isSupported}
                         >
@@ -210,10 +202,11 @@ export default function App() {
 
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Selection & Vibration</Text>
+                    <Text style={styles.sectionSubtitle}>Standard selection feedback and custom vibration</Text>
                     <View style={styles.buttonRow}>
                         <TouchableOpacity
                             style={styles.button}
-                            onPress={() => handleHapticButton(() => ExpoBetterHaptics.selection(), 'Selection')}
+                            onPress={() => handleHapticButton(() => Haptics.selectionAsync(), 'Selection')}
                             disabled={!isSupported}
                         >
                             <Text style={styles.buttonText}>Selection</Text>
@@ -223,7 +216,7 @@ export default function App() {
                             style={styles.button}
                             onPress={() =>
                                 handleHapticButton(
-                                    () => ExpoBetterHaptics.vibrate({ duration: 0.5 }),
+                                    () => Haptics.vibrateAsync({ duration: 0.5 }),
                                     'Short Vibration',
                                 )
                             }
@@ -235,7 +228,7 @@ export default function App() {
                         <TouchableOpacity
                             style={styles.button}
                             onPress={() =>
-                                handleHapticButton(() => ExpoBetterHaptics.vibrate({ duration: 1.0 }), 'Long Vibration')
+                                handleHapticButton(() => Haptics.vibrateAsync({ duration: 1.0 }), 'Long Vibration')
                             }
                             disabled={!isSupported}
                         >
@@ -245,13 +238,14 @@ export default function App() {
                 </View>
 
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Custom Patterns</Text>
+                    <Text style={styles.sectionTitle}>Custom Haptic Patterns</Text>
+                    <Text style={styles.sectionSubtitle}>Advanced patterns for more complex feedback</Text>
                     <View style={styles.buttonRow}>
                         <TouchableOpacity
                             style={[styles.button, { flex: 1 }]}
                             onPress={() =>
                                 handleHapticButton(
-                                    () => ExpoBetterHaptics.play(createCustomPattern()),
+                                    () => Haptics.playPatternAsync(createCustomPattern()),
                                     'Simple Pattern',
                                 )
                             }
@@ -264,7 +258,7 @@ export default function App() {
                             style={[styles.button, { flex: 1 }]}
                             onPress={() =>
                                 handleHapticButton(
-                                    () => ExpoBetterHaptics.play(createRhythmPattern()),
+                                    () => Haptics.playPatternAsync(createRhythmPattern()),
                                     'Rhythm Pattern',
                                 )
                             }
@@ -276,7 +270,8 @@ export default function App() {
                 </View>
 
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Custom Haptic</Text>
+                    <Text style={styles.sectionTitle}>Custom Haptic Parameters</Text>
+                    <Text style={styles.sectionSubtitle}>Fine-tune intensity, sharpness and duration</Text>
 
                     <View style={styles.sliderContainer}>
                         <Text style={styles.sliderLabel}>Intensity: {intensity.toFixed(2)}</Text>
@@ -325,7 +320,7 @@ export default function App() {
                             style={[styles.button, { flex: 1 }]}
                             onPress={() =>
                                 handleHapticButton(
-                                    () => ExpoBetterHaptics.playTransient(intensity, sharpness),
+                                    () => Haptics.playTransientAsync(intensity, sharpness),
                                     'Transient',
                                 )
                             }
@@ -338,24 +333,7 @@ export default function App() {
                             style={[styles.button, { flex: 1 }]}
                             onPress={() =>
                                 handleHapticButton(
-                                    () =>
-                                        ExpoBetterHaptics.play([
-                                            {
-                                                type: 'continuous', // Use string type instead of numeric constant
-                                                time: 0,
-                                                duration: duration,
-                                                parameters: [
-                                                    {
-                                                        id: HapticEventParameterType.Intensity,
-                                                        value: intensity,
-                                                    },
-                                                    {
-                                                        id: HapticEventParameterType.Sharpness,
-                                                        value: sharpness,
-                                                    },
-                                                ],
-                                            },
-                                        ]),
+                                    () => Haptics.playContinuousAsync(intensity, sharpness, duration),
                                     'Continuous',
                                 )
                             }
@@ -366,15 +344,17 @@ export default function App() {
                     </View>
                 </View>
 
+
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Engine Control</Text>
+                    <Text style={styles.sectionTitle}>Haptic Engine Control</Text>
+                    <Text style={styles.sectionSubtitle}>Explicitly control the haptic engine state</Text>
                     <View style={styles.buttonRow}>
                         <TouchableOpacity
                             style={[styles.button, { flex: 1 }]}
                             onPress={async () => {
                                 try {
                                     setStatus('Initializing haptic engine explicitly...')
-                                    await ExpoBetterHaptics.initialize()
+                                    await Haptics.initialize()
                                     setInitialized(true)
                                     setStatus('Engine explicitly initialized')
                                 } catch (error) {
@@ -392,6 +372,7 @@ export default function App() {
                             onPress={async () => {
                                 try {
                                     setStatus('Stopping haptic engine...')
+                                    await Haptics.stop()
                                     setInitialized(false)
                                     setStatus('Engine state reset')
                                 } catch (error) {
@@ -407,7 +388,7 @@ export default function App() {
                 </View>
 
                 <View style={styles.footer}>
-                    <Text style={styles.footerText}>ExpoBetterHaptics Demo App</Text>
+                    <Text style={styles.footerText}>expo-better-haptics Demo App</Text>
                     <Text style={styles.footerVersion}>v1.0.0</Text>
                 </View>
             </ScrollView>
@@ -476,6 +457,18 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 16,
+        color: '#333',
+    },
+    sectionSubtitle: {
+        fontSize: 14,
+        color: '#666',
+        marginBottom: 12,
+    },
+    groupLabel: {
+        fontSize: 16,
+        fontWeight: '600',
+        marginTop: 12,
+        marginBottom: 8,
         color: '#333',
     },
     buttonRow: {
