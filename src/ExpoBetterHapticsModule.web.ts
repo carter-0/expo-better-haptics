@@ -123,6 +123,11 @@ const webImplementation = {
         navigator.vibrate(pattern)
         return true
     },
+
+    async playAhap(filePath: string): Promise<boolean> {
+        console.warn('playAhap is not supported on the web')
+        return false
+    },
 }
 
 // Export the web implementation

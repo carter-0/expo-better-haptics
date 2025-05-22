@@ -9,6 +9,7 @@ A drop-in replacement for `expo-haptics` offering fine-grained control over hapt
 - ⚡ **Continuous or transient impacts** with multiple intensity levels
 - 🎵 **Complex haptic patterns** with precise timing and sequencing
 - 💥 **Pre-built notification patterns** (success, warning, error)
+- 🎧 **Play AHAP files on iOS** for advanced haptic effects
 - 📱 **Cross-platform support** for both iOS and Android
 
 ## Requirements
@@ -185,6 +186,7 @@ if (isSupported) {
     - `sharpness` (number, 0-1) - Required. Sharpness of the haptic effect
     - `duration` (number) - Required. Duration in seconds
 - `playPatternAsync(events)` - Plays a custom haptic pattern defined by an array of haptic events
+- `playAhapFileAsync(path)` - Plays an AHAP file from the provided filesystem path (iOS only)
 
 #### Helper Methods
 
@@ -298,10 +300,13 @@ In addition, you'll gain access to more powerful haptic features:
 
 ```javascript
 // Extended functionality
+import * as FileSystem from 'expo-file-system'
 await Haptics.vibrateAsync({ intensity: 0.8, sharpness: 0.6, duration: 0.5 })
 await Haptics.playTransientAsync(0.7, 0.9)
 await Haptics.playContinuousAsync(0.6, 0.3, 1.2)
 await Haptics.playPatternAsync(customPattern)
+// Play an AHAP file (iOS only)
+await Haptics.playAhapFileAsync(FileSystem.documentDirectory + 'pattern.ahap')
 ```
 
 ## Example App

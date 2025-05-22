@@ -471,6 +471,12 @@ class ExpoBetterHapticsModule : Module() {
       true
     }
 
+    // Stub for playing AHAP files on Android
+    AsyncFunction("playAhap") { filePath: String ->
+      Log.d("ExpoBetterHaptics", "playAhap called with $filePath - not implemented on Android")
+      false
+    }
+
     // Enables the module to be used as a native view. Definition components that are accepted as part of
     // the view definition: Prop, Events.
     View(ExpoBetterHapticsView::class) {

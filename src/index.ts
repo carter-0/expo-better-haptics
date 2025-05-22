@@ -193,6 +193,15 @@ class ExpoBetterHaptics {
     }
 
     /**
+     * Play an AHAP file located at the provided file path.
+     * This currently only works on iOS devices.
+     */
+    static async playAhapFileAsync(filePath: string): Promise<void> {
+        await this.ensureInitialized()
+        await ExpoBetterHapticsModule.playAhap(filePath)
+    }
+
+    /**
      * Create a transient haptic event.
      * Helper method to simplify creating transient haptic events.
      */
@@ -269,6 +278,7 @@ export const vibrateAsync = ExpoBetterHaptics.vibrateAsync.bind(ExpoBetterHaptic
 export const playPatternAsync = ExpoBetterHaptics.playPatternAsync.bind(ExpoBetterHaptics)
 export const playTransientAsync = ExpoBetterHaptics.playTransientAsync.bind(ExpoBetterHaptics)
 export const playContinuousAsync = ExpoBetterHaptics.playContinuousAsync.bind(ExpoBetterHaptics)
+export const playAhapFileAsync = ExpoBetterHaptics.playAhapFileAsync.bind(ExpoBetterHaptics)
 
 // Export core functions
 export const initialize = ExpoBetterHaptics.initialize.bind(ExpoBetterHaptics)

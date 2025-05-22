@@ -372,5 +372,31 @@ public class ExpoBetterHapticsModule: Module {
                 return false
             }
         }
+
+        // Play an AHAP file located at the given file path
+        AsyncFunction("playAhap") { (filePath: String) -> Bool in
+            guard let engine = self.engine, self.supportsHaptics else {
+                return false
+            }
+
+            do {
+                let url = URL(fileURLWithPath: filePath)
+                let data = try Data(contentsOf: url)
+                guard
+                    let obj = try JSONSerialization.jsonObject(with: data) as? [CHHapticPattern.Key: Any]
+                else {
+                    return false
+                }
+
+                let pattern = try CHHapticPattern(dictionary: obj)
+                let player = try engine.makePlayer(with: pattern)
+                try engine.start()
+                try player.start(atTime: CHHapticTimeImmediate)
+                return true
+            } catch {
+                print("Failed to play AHAP: \(error)")
+                return false
+            }
+        }
     }
 }

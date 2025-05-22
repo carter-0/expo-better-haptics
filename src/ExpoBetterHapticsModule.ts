@@ -117,6 +117,12 @@ interface ExpoBetterHapticsModule {
      * @returns Promise that resolves to true if the pattern played successfully
      */
     playPattern(events: HapticEvent[]): Promise<boolean>
+
+    /**
+     * Play an AHAP file on iOS devices
+     * @param filePath Path to the AHAP file on disk
+     */
+    playAhap(filePath: string): Promise<boolean>
 }
 
 // Load the native module
