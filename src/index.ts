@@ -164,7 +164,89 @@ class ExpoBetterHaptics {
      */
     static async playPatternAsync(events: HapticEvent[]): Promise<void> {
         await this.ensureInitialized()
-        await ExpoBetterHapticsModule.playPattern(events)
+
+        // Transform events to the format expected by native module
+        const transformedEvents = events.map((event) => {
+            // Convert type to the format expected by native
+            let typeString: string
+
+            // Check if it's using the enum constants (which are actually strings from CoreHaptics)
+            if (
+                event.type === HapticEventType.Transient ||
+                event.type === ExpoBetterHapticsModule.HapticEventTypes?.transient
+            ) {
+                typeString = 'transient'
+            } else if (
+                event.type === HapticEventType.Continuous ||
+                event.type === ExpoBetterHapticsModule.HapticEventTypes?.continuous
+            ) {
+                typeString = 'continuous'
+            } else if (typeof event.type === 'string') {
+                // Already a string, use as-is
+                typeString = event.type
+            } else {
+                // Default fallback
+                typeString = 'transient'
+            }
+
+            // Convert parameter IDs to strings
+            const transformedParameters = event.parameters.map((param) => {
+                let idString: string
+
+                // Check if it's using the enum constants (which are actually strings from CoreHaptics)
+                if (
+                    param.id === HapticEventParameterType.Intensity ||
+                    param.id === ExpoBetterHapticsModule.HapticEventParameters?.intensity
+                ) {
+                    idString = 'intensity'
+                } else if (
+                    param.id === HapticEventParameterType.Sharpness ||
+                    param.id === ExpoBetterHapticsModule.HapticEventParameters?.sharpness
+                ) {
+                    idString = 'sharpness'
+                } else if (
+                    param.id === HapticEventParameterType.AttackTime ||
+                    param.id === ExpoBetterHapticsModule.HapticEventParameters?.attackTime
+                ) {
+                    idString = 'attackTime'
+                } else if (
+                    param.id === HapticEventParameterType.DecayTime ||
+                    param.id === ExpoBetterHapticsModule.HapticEventParameters?.decayTime
+                ) {
+                    idString = 'decayTime'
+                } else if (
+                    param.id === HapticEventParameterType.ReleaseTime ||
+                    param.id === ExpoBetterHapticsModule.HapticEventParameters?.releaseTime
+                ) {
+                    idString = 'releaseTime'
+                } else if (
+                    param.id === HapticEventParameterType.Sustained ||
+                    param.id === ExpoBetterHapticsModule.HapticEventParameters?.sustained
+                ) {
+                    idString = 'sustained'
+                } else if (typeof param.id === 'string') {
+                    // Already a string, use as-is
+                    idString = param.id
+                } else {
+                    // Default fallback
+                    idString = 'intensity'
+                }
+
+                return {
+                    id: idString,
+                    value: param.value,
+                }
+            })
+
+            return {
+                type: typeString,
+                time: event.time,
+                parameters: transformedParameters,
+                ...(event.duration !== undefined && { duration: event.duration }),
+            }
+        })
+
+        await ExpoBetterHapticsModule.playPattern(transformedEvents)
     }
 
     /**
@@ -204,15 +286,15 @@ class ExpoBetterHaptics {
         } = {},
     ): HapticEvent {
         return {
-            type: 'transient', // Use string type instead of numeric constant
+            type: 'transient',
             time: options.time ?? 0,
             parameters: [
                 {
-                    id: HapticEventParameterType.Intensity,
+                    id: 'intensity',
                     value: options.intensity ?? 0.5,
                 },
                 {
-                    id: HapticEventParameterType.Sharpness,
+                    id: 'sharpness',
                     value: options.sharpness ?? 0.5,
                 },
             ],
@@ -232,20 +314,41 @@ class ExpoBetterHaptics {
         } = {},
     ): HapticEvent {
         return {
-            type: 'continuous', // Use string type instead of numeric constant
+            type: 'continuous',
             time: options.time ?? 0,
             duration: options.duration ?? 0.1,
             parameters: [
                 {
-                    id: HapticEventParameterType.Intensity,
+                    id: 'intensity',
                     value: options.intensity ?? 0.5,
                 },
                 {
-                    id: HapticEventParameterType.Sharpness,
+                    id: 'sharpness',
                     value: options.sharpness ?? 0.5,
                 },
             ],
         }
+    }
+
+    /**
+     * Play an AHAP (Apple Haptic Audio Pattern) file.
+     * @param ahapData - AHAP pattern data as a JavaScript object or JSON string
+     * @returns Promise that resolves when the AHAP pattern is played
+     */
+    static async playAHAPAsync(ahapData: Record<string, any> | string): Promise<void> {
+        await this.ensureInitialized()
+
+        // Convert string to object if needed
+        const data = typeof ahapData === 'string' ? JSON.parse(ahapData) : ahapData
+
+        // Transform the AHAP format if it has a Pattern array
+        let patternData = data
+        if (data.Pattern) {
+            // This is the expo-ahap format, pass it directly
+            patternData = data
+        }
+
+        await ExpoBetterHapticsModule.playAHAP(patternData)
     }
 
     /**
@@ -269,6 +372,7 @@ export const vibrateAsync = ExpoBetterHaptics.vibrateAsync.bind(ExpoBetterHaptic
 export const playPatternAsync = ExpoBetterHaptics.playPatternAsync.bind(ExpoBetterHaptics)
 export const playTransientAsync = ExpoBetterHaptics.playTransientAsync.bind(ExpoBetterHaptics)
 export const playContinuousAsync = ExpoBetterHaptics.playContinuousAsync.bind(ExpoBetterHaptics)
+export const playAHAPAsync = ExpoBetterHaptics.playAHAPAsync.bind(ExpoBetterHaptics)
 
 // Export core functions
 export const initialize = ExpoBetterHaptics.initialize.bind(ExpoBetterHaptics)

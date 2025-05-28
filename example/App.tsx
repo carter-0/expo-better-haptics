@@ -1,6 +1,6 @@
 import Slider from '@react-native-community/slider'
 import * as Haptics from 'expo-better-haptics'
-import { HapticEvent, HapticEventParameterType } from 'expo-better-haptics'
+import { HapticEvent, HapticEventParameterType, HapticEventType } from 'expo-better-haptics'
 import React, { useEffect, useState } from 'react'
 import { Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
@@ -80,6 +80,68 @@ export default function App() {
             time += beat
         })
 
+        return events
+    }
+
+    // Create a pattern using manual "full control" method (from README)
+    const createManualPattern = (): HapticEvent[] => {
+        return [
+            {
+                type: HapticEventType.Transient,
+                time: 0,
+                parameters: [
+                    { id: HapticEventParameterType.Intensity, value: 0.8 },
+                    { id: HapticEventParameterType.Sharpness, value: 0.5 },
+                ],
+            },
+            {
+                type: HapticEventType.Continuous,
+                time: 0.2,
+                duration: 0.5,
+                parameters: [
+                    { id: HapticEventParameterType.Intensity, value: 0.6 },
+                    { id: HapticEventParameterType.Sharpness, value: 0.3 },
+                ],
+            },
+        ]
+    }
+
+    // Create a dynamic curve pattern that simulates parameter changes over time
+    const createDynamicCurvePattern = (): HapticEvent[] => {
+        const events: HapticEvent[] = []
+        const totalDuration = 1.5 // 1.5 seconds total
+        const steps = 10 // Create 10 intensity steps to simulate a curve
+        
+        // Create a continuous base event
+        events.push({
+            type: HapticEventType.Continuous,
+            time: 0,
+            duration: totalDuration,
+            parameters: [
+                { id: HapticEventParameterType.Intensity, value: 0.2 },
+                { id: HapticEventParameterType.Sharpness, value: 0.3 },
+            ],
+        })
+        
+        // Simulate dynamic intensity curve: fade in, peak, fade out
+        for (let i = 0; i < steps; i++) {
+            const timeOffset = (i / (steps - 1)) * totalDuration
+            // Create a bell curve: starts low, peaks in middle, ends low
+            const progress = i / (steps - 1)
+            const bellCurve = Math.sin(progress * Math.PI) // Creates 0 -> 1 -> 0 curve
+            const intensity = 0.2 + (bellCurve * 0.7) // Scale from 0.2 to 0.9
+            
+            // Add overlapping transient events to simulate intensity changes
+            events.push({
+                type: HapticEventType.Transient,
+                time: timeOffset,
+                parameters: [
+                    { id: HapticEventParameterType.Intensity, value: intensity },
+                    { id: HapticEventParameterType.Sharpness, value: 0.4 + (bellCurve * 0.4) }, // Also vary sharpness
+                ],
+            })
+        }
+        
         return events
     }
 
@@ -267,7 +329,163 @@ export default function App() {
                             <Text style={styles.buttonText}>Rhythm Pattern</Text>
                         </TouchableOpacity>
                     </View>
+                    
+                    <View style={styles.buttonRow}>
+                        <TouchableOpacity
+                            style={[styles.button, { flex: 1 }]}
+                            onPress={() =>
+                                handleHapticButton(
+                                    () => Haptics.playPatternAsync(createManualPattern()),
+                                    'Manual Pattern',
+                                )
+                            }
+                            disabled={!isSupported}
+                        >
+                            <Text style={styles.buttonText}>Manual Pattern (Full Control)</Text>
+                        </TouchableOpacity>
+                    </View>
+                    
+                    <View style={styles.buttonRow}>
+                        <TouchableOpacity
+                            style={[styles.button, { flex: 1 }]}
+                            onPress={() =>
+                                handleHapticButton(
+                                    () => Haptics.playPatternAsync(createDynamicCurvePattern()),
+                                    'Dynamic Curve Pattern',
+                                )
+                            }
+                            disabled={!isSupported}
+                        >
+                            <Text style={styles.buttonText}>Dynamic Curve (Fade In/Out)</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
+
+                {Platform.OS === 'ios' && (
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>AHAP Patterns (iOS Only)</Text>
+                        <Text style={styles.sectionSubtitle}>Play Apple Haptic Audio Patterns</Text>
+                        <View style={styles.buttonRow}>
+                            <TouchableOpacity
+                                style={[styles.button, { flex: 1 }]}
+                                onPress={() =>
+                                    handleHapticButton(async () => {
+                                        const ahapPattern = {
+                                            Pattern: [
+                                                {
+                                                    Event: {
+                                                        Time: 0.0,
+                                                        EventType: "HapticContinuous",
+                                                        EventDuration: 0.6,
+                                                        EventParameters: [
+                                                            { ParameterID: "HapticIntensity", ParameterValue: 1.0 },
+                                                            { ParameterID: "HapticSharpness", ParameterValue: 0.5 },
+                                                        ],
+                                                    },
+                                                },
+                                                {
+                                                    ParameterCurve: {
+                                                        ParameterID: "HapticIntensityControl",
+                                                        Time: 0.0,
+                                                        ParameterCurveControlPoints: [
+                                                            { Time: 0, ParameterValue: 0.2 },
+                                                            { Time: 0.6, ParameterValue: 0.7 },
+                                                            { Time: 0.601, ParameterValue: 1.0 },
+                                                        ],
+                                                    },
+                                                },
+                                                {
+                                                    ParameterCurve: {
+                                                        ParameterID: "HapticSharpnessControl",
+                                                        Time: 0.0,
+                                                        ParameterCurveControlPoints: [
+                                                            { Time: 0, ParameterValue: -0.5 },
+                                                            { Time: 0.6, ParameterValue: 0.5 },
+                                                        ],
+                                                    },
+                                                },
+                                                {
+                                                    Event: {
+                                                        Time: 0.601,
+                                                        EventType: "HapticTransient",
+                                                        EventParameters: [
+                                                            { ParameterID: "HapticIntensity", ParameterValue: 1.0 },
+                                                            { ParameterID: "HapticSharpness", ParameterValue: 0.7 },
+                                                        ],
+                                                    },
+                                                },
+                                            ],
+                                        }
+                                        await Haptics.playAHAPAsync(ahapPattern)
+                                    }, 'AHAP Pattern')
+                                }
+                                disabled={!isSupported}
+                            >
+                                <Text style={styles.buttonText}>AHAP Crescendo</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.button, { flex: 1 }]}
+                                onPress={() =>
+                                    handleHapticButton(async () => {
+                                        const heartbeatPattern = {
+                                            Pattern: [
+                                                // First heartbeat thump
+                                                {
+                                                    Event: {
+                                                        Time: 0.0,
+                                                        EventType: "HapticTransient",
+                                                        EventParameters: [
+                                                            { ParameterID: "HapticIntensity", ParameterValue: 0.9 },
+                                                            { ParameterID: "HapticSharpness", ParameterValue: 0.2 },
+                                                        ],
+                                                    },
+                                                },
+                                                // Second heartbeat thump
+                                                {
+                                                    Event: {
+                                                        Time: 0.15,
+                                                        EventType: "HapticTransient",
+                                                        EventParameters: [
+                                                            { ParameterID: "HapticIntensity", ParameterValue: 0.7 },
+                                                            { ParameterID: "HapticSharpness", ParameterValue: 0.3 },
+                                                        ],
+                                                    },
+                                                },
+                                                // Pause...
+                                                // Next heartbeat
+                                                {
+                                                    Event: {
+                                                        Time: 0.7,
+                                                        EventType: "HapticTransient",
+                                                        EventParameters: [
+                                                            { ParameterID: "HapticIntensity", ParameterValue: 0.9 },
+                                                            { ParameterID: "HapticSharpness", ParameterValue: 0.2 },
+                                                        ],
+                                                    },
+                                                },
+                                                {
+                                                    Event: {
+                                                        Time: 0.85,
+                                                        EventType: "HapticTransient",
+                                                        EventParameters: [
+                                                            { ParameterID: "HapticIntensity", ParameterValue: 0.7 },
+                                                            { ParameterID: "HapticSharpness", ParameterValue: 0.3 },
+                                                        ],
+                                                    },
+                                                },
+                                            ],
+                                        }
+                                        await Haptics.playAHAPAsync(heartbeatPattern)
+                                    }, 'Heartbeat Pattern')
+                                }
+                                disabled={!isSupported}
+                            >
+                                <Text style={styles.buttonText}>Heartbeat</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                )}
 
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Custom Haptic Parameters</Text>

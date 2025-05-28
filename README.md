@@ -10,10 +10,11 @@ A drop-in replacement for `expo-haptics` offering fine-grained control over hapt
 - 🎵 **Complex haptic patterns** with precise timing and sequencing
 - 💥 **Pre-built notification patterns** (success, warning, error)
 - 📱 **Cross-platform support** for both iOS and Android
+- 🎼 **AHAP file support** for playing Apple Haptic Audio Patterns on iOS
 
 ## Requirements
 
-- Expo SDK 49 or newer
+- Expo SDK 52 or newer
 - iOS 13+ for CoreHaptics API (iPhone 8 or newer)
 - Android 8+ (API level 26) for enhanced vibration effects
 - Android 11+ (API level 30) for Haptic Compositions and Primitives
@@ -130,6 +131,86 @@ const manualPattern = [
 await Haptics.playPatternAsync(manualPattern)
 ```
 
+#### Playing AHAP Files (iOS Only)
+
+AHAP (Apple Haptic Audio Pattern) files allow you to create rich haptic experiences with synchronized audio on iOS:
+
+```javascript
+import * as Haptics from 'expo-better-haptics'
+
+// Play an AHAP pattern directly from JSON
+const ahapPattern = {
+    Pattern: [
+        {
+            Event: {
+                Time: 0.0,
+                EventType: "HapticContinuous",
+                EventDuration: 0.6,
+                EventParameters: [
+                    { ParameterID: "HapticIntensity", ParameterValue: 1.0 },
+                    { ParameterID: "HapticSharpness", ParameterValue: 0.5 },
+                ],
+            },
+        },
+        {
+            Event: {
+                Time: 0.601,
+                EventType: "HapticTransient",
+                EventParameters: [
+                    { ParameterID: "HapticIntensity", ParameterValue: 1.0 },
+                    { ParameterID: "HapticSharpness", ParameterValue: 0.7 },
+                ],
+            },
+        },
+    ],
+}
+
+await Haptics.playAHAPAsync(ahapPattern)
+
+// Or load from an imported JSON file
+import heartbeatPattern from './haptics/heartbeat.json'
+await Haptics.playAHAPAsync(heartbeatPattern)
+
+// You can also pass AHAP as a JSON string
+const ahapString = JSON.stringify(ahapPattern)
+await Haptics.playAHAPAsync(ahapString)
+```
+
+AHAP files support parameter curves for dynamic control:
+
+```javascript
+const dynamicPattern = {
+    Pattern: [
+        {
+            Event: {
+                Time: 0.0,
+                EventType: "HapticContinuous",
+                EventDuration: 1.0,
+                EventParameters: [
+                    { ParameterID: "HapticIntensity", ParameterValue: 0.5 },
+                    { ParameterID: "HapticSharpness", ParameterValue: 0.5 },
+                ],
+            },
+        },
+        {
+            ParameterCurve: {
+                ParameterID: "HapticIntensityControl",
+                Time: 0.0,
+                ParameterCurveControlPoints: [
+                    { Time: 0, ParameterValue: 0.2 },
+                    { Time: 0.5, ParameterValue: 1.0 },
+                    { Time: 1.0, ParameterValue: 0.2 },
+                ],
+            },
+        },
+    ],
+}
+
+await Haptics.playAHAPAsync(dynamicPattern)
+```
+
+> Note: AHAP patterns are only supported on iOS 13+ devices. On Android, the playAHAPAsync method will fail silently.
+
 ### Checking Support and Managing Engine
 
 ```javascript
@@ -185,6 +266,8 @@ if (isSupported) {
     - `sharpness` (number, 0-1) - Required. Sharpness of the haptic effect
     - `duration` (number) - Required. Duration in seconds
 - `playPatternAsync(events)` - Plays a custom haptic pattern defined by an array of haptic events
+- `playAHAPAsync(ahapData)` - Plays an AHAP (Apple Haptic Audio Pattern) on iOS devices
+    - `ahapData` (Object or string) - AHAP pattern data as a JavaScript object or JSON string
 
 #### Helper Methods
 

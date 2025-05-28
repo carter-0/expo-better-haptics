@@ -372,5 +372,30 @@ public class ExpoBetterHapticsModule: Module {
                 return false
             }
         }
+        
+        // Play an AHAP (Apple Haptic Audio Pattern) from JSON data
+        AsyncFunction("playAHAP") { (ahapData: [CHHapticPattern.Key: Any]) -> Bool in
+            guard let engine = self.engine, self.supportsHaptics else {
+                return false
+            }
+            
+            do {
+                // Create a pattern from the AHAP dictionary
+                let pattern = try CHHapticPattern(dictionary: ahapData)
+                
+                // Create a player to play the pattern
+                let player = try engine.makePlayer(with: pattern)
+                
+                // Start the engine
+                try engine.start()
+                
+                // Play the pattern
+                try player.start(atTime: CHHapticTimeImmediate)
+                return true
+            } catch {
+                print("Failed to play AHAP pattern: \(error)")
+                return false
+            }
+        }
     }
 }

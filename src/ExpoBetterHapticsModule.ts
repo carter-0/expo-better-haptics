@@ -117,6 +117,13 @@ interface ExpoBetterHapticsModule {
      * @returns Promise that resolves to true if the pattern played successfully
      */
     playPattern(events: HapticEvent[]): Promise<boolean>
+
+    /**
+     * Play an AHAP (Apple Haptic Audio Pattern) from JSON data
+     * @param ahapData AHAP pattern data as a JavaScript object
+     * @returns Promise that resolves to true if the pattern played successfully
+     */
+    playAHAP(ahapData: Record<string, any>): Promise<boolean>
 }
 
 // Load the native module

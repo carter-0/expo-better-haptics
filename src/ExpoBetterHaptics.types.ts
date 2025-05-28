@@ -33,7 +33,7 @@ export const DynamicParameterID = {
  * Parameter object for haptic events
  */
 export interface HapticParameter {
-    id: number
+    id: string | number
     value: number
 }
 
